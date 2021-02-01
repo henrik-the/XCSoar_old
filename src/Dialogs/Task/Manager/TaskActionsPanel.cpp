@@ -38,6 +38,15 @@ Copyright_License {
 #include "Engine/Task/Factory/AbstractTaskFactory.hpp"
 #include "Engine/Waypoint/Waypoints.hpp"
 
+//henrik
+#include "UIGlobals.hpp"
+#include "Dialogs/JobDialog.hpp"
+#include "util/ConvertString.hpp"
+#include "net/http/Session.hpp"
+#include "net/http/ToFile.hpp"
+#include "Job/Runner.hpp"
+#include "LocalPath.hpp"
+
 TaskActionsPanel::TaskActionsPanel(TaskManagerDialog &_dialog,
                                    TaskMiscPanel &_parent,
                                    OrderedTask **_active_task,
@@ -103,6 +112,22 @@ TaskActionsPanel::OnDeclareClicked()
   ExternalLogger::Declare(decl, way_points.GetHome().get());
 }
 
+inline void
+TaskActionsPanel::OnDownloadClicked()
+{
+  DialogJobRunner runner(UIGlobals::GetMainWindow(),UIGlobals::GetDialogLook(),_("Download"), true);
+  //DialogJobRunner runner(dialog.GetMainWindow(), dialog.GetLook(),_("Download"), true);
+  Net::Session session;
+
+  char url[256];
+  //snprintf(url, sizeof(url),"https://api.weglide.org/v1/task/6609?tsk=True");
+  snprintf(url, sizeof(url),"https://api.weglide.org/v1/task/declaration/67?cup=false&tsk=true");
+  const auto cache_path = MakeLocalPath(_T("weglide"));
+  const auto path = AllocatedPath::Build(cache_path, UTF8ToWideConverter("weglide_declared.tsk"));
+  Net::DownloadToFileJob job(session, url, path);
+  runner.Run(job);
+}
+
 void
 TaskActionsPanel::ReClick()
 {
@@ -116,6 +141,7 @@ TaskActionsPanel::Prepare(ContainerWindow &parent, const PixelRect &rc)
   AddButton(_("Declare"), *this, DECLARE);
   AddButton(_("Browse"), *this, BROWSE);
   AddButton(_("Save"), *this, SAVE);
+  AddButton(_("Download WeGlide"),*this, DOWNLOAD);
 
   if (is_simulator())
     /* cannot communicate with real devices in simulator mode */
@@ -140,6 +166,10 @@ TaskActionsPanel::OnAction(int id) noexcept
 
   case SAVE:
     SaveTask();
+    break;
+
+  case DOWNLOAD:
+    OnDownloadClicked();
     break;
   }
 }
