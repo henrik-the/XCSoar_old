@@ -121,23 +121,16 @@ TaskActionsPanel::OnDeclareClicked()
 inline void
 TaskActionsPanel::OnDownloadClicked()
 {
-  LogFormat("vor runner\n");
-  DialogJobRunner runner42(UIGlobals::GetMainWindow(),UIGlobals::GetDialogLook(),_("Download"), true);
+  LogFormat("start\n");
+  //DialogJobRunner runner42(UIGlobals::GetMainWindow(),UIGlobals::GetDialogLook(),_("Download"), true);
   //DialogJobRunner runner(dialog.GetMainWindow(), dialog.GetLook(),_("Download"), true);
-  Net::Session session42;
+  //Net::Session session42;
 
-  char url42[256];
-  //snprintf(url, sizeof(url),"https://api.weglide.org/v1/task/6609?tsk=True");
-  snprintf(url42, sizeof(url42),"https://api.weglide.org/v1/task/declaration/67?cup=false&tsk=true");
-  //snprintf(url, sizeof(url),"https://flg-grabenstetten.de/flarmids.txt");
-  const auto cache_path42 = MakeLocalPath(_T("weglide"));
-  const auto path42 = AllocatedPath::Build(cache_path42, UTF8ToWideConverter("weglide_declared.tsk"));
-  Net::DownloadToFileJob job42(session42, url42, path42);
-  LogFormat("vor run\n");
-  //runner42.Run(job42);
-  if (!runner42.Run(job42))
-    LogFormat("!runner\n");
-
+  char url[256];
+  snprintf(url, sizeof(url),"https://api.weglide.org/v1/task/declaration/67?cup=false&tsk=true");
+  const auto cache_path = MakeLocalPath(_T("weglide"));
+  //const auto path = AllocatedPath::Build(cache_path, UTF8ToWideConverter("weglide_declared.tsk"));
+  Net::DownloadManager::Enqueue(url, Path("weglide/weglide_declared.tsk"));
 }
 
 void
