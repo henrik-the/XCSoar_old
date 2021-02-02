@@ -28,6 +28,8 @@ Copyright_License {
 #include "OS/FileUtil.hpp"
 #include "Logger/MD5.hpp"
 
+#include "LogFile.hpp"
+
 #include <assert.h>
 #include <stdio.h>
 
@@ -92,6 +94,7 @@ DownloadToFile(Net::Session &session, const char *url,
     request.SetBasicAuth(username, password);
 
   try {
+    LogFormat("vor request\n");
     request.Send(10000);
   } catch (CancelDownloadToFile) {
     return false;

@@ -38,6 +38,21 @@ Copyright_License {
 #include "Engine/Task/Factory/AbstractTaskFactory.hpp"
 #include "Engine/Waypoint/Waypoints.hpp"
 
+//henrik
+#include "UIGlobals.hpp"
+#include "Dialogs/JobDialog.hpp"
+#include "Util/ConvertString.hpp"
+#include "Net/HTTP/Session.hpp"
+#include "Net/HTTP/ToFile.hpp"
+#include "Net/HTTP/ToBuffer.hpp"
+#include "Job/Runner.hpp"
+#include "LocalPath.hpp"
+#include "Dialogs/Error.hpp"
+#include "LogFile.hpp"
+
+//mit Download Manager
+#include "Net/HTTP/DownloadManager.hpp"
+
 TaskActionsPanel::TaskActionsPanel(TaskManagerDialog &_dialog,
                                    TaskMiscPanel &_parent,
                                    OrderedTask **_active_task,
@@ -103,6 +118,28 @@ TaskActionsPanel::OnDeclareClicked()
   ExternalLogger::Declare(decl, way_points.GetHome().get());
 }
 
+inline void
+TaskActionsPanel::OnDownloadClicked()
+{
+  LogFormat("vor runner\n");
+  DialogJobRunner runner42(UIGlobals::GetMainWindow(),UIGlobals::GetDialogLook(),_("Download"), true);
+  //DialogJobRunner runner(dialog.GetMainWindow(), dialog.GetLook(),_("Download"), true);
+  Net::Session session42;
+
+  char url42[256];
+  //snprintf(url, sizeof(url),"https://api.weglide.org/v1/task/6609?tsk=True");
+  snprintf(url42, sizeof(url42),"https://api.weglide.org/v1/task/declaration/67?cup=false&tsk=true");
+  //snprintf(url, sizeof(url),"https://flg-grabenstetten.de/flarmids.txt");
+  const auto cache_path42 = MakeLocalPath(_T("weglide"));
+  const auto path42 = AllocatedPath::Build(cache_path42, UTF8ToWideConverter("weglide_declared.tsk"));
+  Net::DownloadToFileJob job42(session42, url42, path42);
+  LogFormat("vor run\n");
+  //runner42.Run(job42);
+  if (!runner42.Run(job42))
+    LogFormat("!runner\n");
+
+}
+
 void
 TaskActionsPanel::ReClick()
 {
@@ -116,6 +153,7 @@ TaskActionsPanel::Prepare(ContainerWindow &parent, const PixelRect &rc)
   AddButton(_("Declare"), *this, DECLARE);
   AddButton(_("Browse"), *this, BROWSE);
   AddButton(_("Save"), *this, SAVE);
+  AddButton(_("Download WeGlide"),*this, DOWNLOAD);
 
   if (is_simulator())
     /* cannot communicate with real devices in simulator mode */
@@ -140,6 +178,10 @@ TaskActionsPanel::OnAction(int id) noexcept
 
   case SAVE:
     SaveTask();
+    break;
+
+  case DOWNLOAD:
+    OnDownloadClicked();
     break;
   }
 }
