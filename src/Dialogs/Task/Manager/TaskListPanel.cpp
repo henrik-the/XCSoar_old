@@ -371,11 +371,11 @@ TaskListPanel::Unprepare()
 void
 TaskListPanel::Show(const PixelRect &rc)
 {
-  if (serial != task_list_serial) {
-    serial = task_list_serial;
+  //if (serial != task_list_serial) { Muss weg damit weglide Download Aufgabe erscheint
+    //serial = task_list_serial;
     // Scan XCSoarData for available tasks
-    task_store->Scan(more);
-  }
+  task_store->Scan(more);
+  //}
 
   dialog.ShowTaskView(get_cursor_task());
 

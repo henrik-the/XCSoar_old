@@ -49,6 +49,9 @@ Copyright_License {
 #include "LocalPath.hpp"
 #include "Dialogs/Error.hpp"
 #include "LogFile.hpp"
+#include "OS/FileUtil.hpp"
+#include "IO/FileTransaction.hpp"
+#include "TaskListPanel.hpp"
 
 //mit Download Manager
 #include "Net/HTTP/DownloadManager.hpp"
@@ -121,15 +124,16 @@ TaskActionsPanel::OnDeclareClicked()
 inline void
 TaskActionsPanel::OnDownloadClicked()
 {
-  LogFormat("start\n");
-  //DialogJobRunner runner42(UIGlobals::GetMainWindow(),UIGlobals::GetDialogLook(),_("Download"), true);
-  //DialogJobRunner runner(dialog.GetMainWindow(), dialog.GetLook(),_("Download"), true);
-  //Net::Session session42;
-
+  const ComputerSettings &settings = CommonInterface::GetComputerSettings();
   char url[256];
-  snprintf(url, sizeof(url),"https://api.weglide.org/v1/task/declaration/67?cup=false&tsk=true");
+  char id[20];
+
+  strcpy(id, settings.logger.pilot_weglide_id.c_str());
+  snprintf(url, sizeof(url),"https://api.weglide.org/v1/task/declaration/%s?cup=false&tsk=true",id);
+
   const auto cache_path = MakeLocalPath(_T("weglide"));
-  //const auto path = AllocatedPath::Build(cache_path, UTF8ToWideConverter("weglide_declared.tsk"));
+  
+  LogFormat("Delete: %i",File::Delete(LocalPath(_T("weglide/weglide_declared.tsk"))));
   Net::DownloadManager::Enqueue(url, Path("weglide/weglide_declared.tsk"));
 }
 

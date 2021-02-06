@@ -33,6 +33,7 @@ Copyright_License {
 
 enum ControlIndex {
   PilotName,
+  PilotWeGlideId,
   LoggerTimeStepCruise,
   LoggerTimeStepCircling,
   DisableAutoLogger,
@@ -66,6 +67,7 @@ LoggerConfigPanel::Prepare(ContainerWindow &parent, const PixelRect &rc)
 
   RowFormWidget::Prepare(parent, rc);
   AddText(_("Pilot name"), nullptr, logger.pilot_name);
+  AddText(_("WeGlide Pilot ID"), nullptr, logger.pilot_weglide_id);
 
   AddTime(_("Time step cruise"),
           _("This is the time interval between logged points when not circling."),
@@ -105,6 +107,9 @@ LoggerConfigPanel::Save(bool &changed)
 
   changed |= SaveValue(PilotName, ProfileKeys::PilotName,
                        logger.pilot_name);
+
+  changed |= SaveValue(PilotWeGlideId, ProfileKeys::PilotWeGlideId,
+                       logger.pilot_weglide_id);
 
   changed |= SaveValue(LoggerTimeStepCruise, ProfileKeys::LoggerTimeStepCruise,
                        logger.time_step_cruise);
